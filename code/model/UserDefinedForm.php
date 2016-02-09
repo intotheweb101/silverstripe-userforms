@@ -51,8 +51,7 @@ class UserDefinedForm extends Page {
 		'HideFieldLabels' => 'Boolean',
 		'DisplayErrorMessagesAtTop' => 'Boolean',
 		'DisableAuthenicatedFinishAction' => 'Boolean',
-		'DisableCsrfSecurityToken' => 'Boolean',
-		'CustomIndividualFileSize' => 'Int'
+		'DisableCsrfSecurityToken' => 'Boolean'
 	);
 
 	/**
@@ -209,7 +208,6 @@ SQL;
 			$export->setExportColumns($columns);
 
 			$submissions->setConfig($config);
-			$fields->addFieldToTab('Root.FormOptions', new NumericField('CustomIndividualFileSize', _t('UserDefinedForm.CustomIndividualFileSize', 'Enter in the Custom file size for indivual upload fields.')));
 			$fields->addFieldToTab('Root.Submissions', $submissions);
 			$fields->addFieldToTab('Root.FormOptions', new CheckboxField('DisableSaveSubmissions', _t('UserDefinedForm.SAVESUBMISSIONS', 'Disable Saving Submissions to Server')));
 
