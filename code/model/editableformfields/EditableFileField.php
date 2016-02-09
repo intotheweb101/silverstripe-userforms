@@ -12,6 +12,10 @@ class EditableFileField extends EditableFormField {
 
 	private static $plural_names = 'File Fields';
 
+	private static $db = array(
+		'MaxFileSize' => 'Int'
+	);
+
 	private static $has_one = array(
 		'Folder' => 'Folder' // From CustomFields
 	);
@@ -45,6 +49,22 @@ class EditableFileField extends EditableFormField {
 				"Files uploaded through this field could be publicly accessible if the exact URL is known")
 				. "</p>"), "Type");
 
+		$fields->addFieldToTab('Root.Main',
+			$numericField = new NumericField('MaxFileSize',
+				_t('EditableUploadField.MaxFileSize',
+				'Enter in the maximum file size in MB for this upload field.'))
+		);
+		$maxUpload = File::ini2bytes(ini_get('upload_max_filesize'));
+		$maxPost= File::ini2bytes(ini_get('post_max_size'));
+		$maxSizeBytes = min($maxUpload, $maxPost);
+		$numericField->setDescription(
+			sprintf(
+				_t('EditableUploadField.MaximumFileSize',
+				'Note: Maximum php allowed size is %s MB'),
+				(round($maxSizeBytes / 1024.0, 1) /1024)
+			)
+		);
+
 		return $fields;
 	}
 
@@ -71,6 +91,31 @@ class EditableFileField extends EditableFormField {
 		$this->doUpdateFormField($field);
 
 		return $field;
+	}
+
+	/**
+	 * Validate if the file is over a certain size
+	 *
+	 * @return boolean
+	 */
+	public function validateField($data, $form) {
+		if ($this->MaxFileSize) {
+			foreach ($data as $file) {
+				if (isset($file['size'])) {
+					if (($this->MaxFileSize * 1024 * 1024) < $file['size']) {
+						$form->addErrorMessage($this->Name,
+							sprintf(
+								_t('EditableUploadField.FileSizeExceded',
+									'File size can not be over %s mb.'),
+								$this->MaxFileSize),
+							'error',
+							false
+						);
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 
